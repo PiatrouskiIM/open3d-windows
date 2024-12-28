@@ -1,0 +1,23 @@
+{
+  "composition": {
+    "source": {
+      "voxel_size": 0.03,
+      "color": null
+    },
+    "target": {
+      "voxel_size": null,
+      "color": null
+    }
+  },
+  "icp": {
+    "factor": 1.0,
+    "voxel_size": 0.01,
+    "max_correspondence_distance": 0.2
+  },
+  "color_preset": {
+    "red": [1, 0, 0],
+    "green": [0, 1, 0],
+    "blue": [0, 0, 1],
+    "highlighted": [0, 0.651, 0.929]
+  }
+}
