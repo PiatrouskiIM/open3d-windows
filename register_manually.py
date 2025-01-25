@@ -35,7 +35,9 @@ key_mappings_when_rotating = {
 
 
 class ManualRegistrationTool:
-    def __init__(self, source, target, init=np.eye(4, dtype=np.float64), add_local_frame=True, **window_kwargs):
+    def __init__(self, source, target, init=np.eye(4), config_path="settings.json", **window_kwargs):
+        self.config_pah = config_path
+
         self.source = source
         self.target = target
 
@@ -44,7 +46,7 @@ class ManualRegistrationTool:
 
         self.source_visible = True
         self.target_visible = True
-        self.local_frame_visible = add_local_frame
+        self.local_frame_visible = True
 
         self.previous_key = -1
         self.previous_key_time = time.time()
@@ -60,7 +62,7 @@ class ManualRegistrationTool:
 
     def compose(self) -> List[open3d.geometry.Geometry]:
         out = []
-        with open("settings.json", "r") as file:
+        with open(self.config_pah, "r") as file:
             settings = json.load(file).get("composition", {})
         if self.source_visible:
             source = copy.deepcopy(self.source).transform(self.transformation)
@@ -85,7 +87,7 @@ class ManualRegistrationTool:
         return out
 
     def refine_with_icp(self):
-        with open("settings.json", "r") as file:
+        with open(self.config_pah, "r") as file:
             settings = json.load(file).get("icp", {})
         factor = settings.get("factor", 1.0)
         scale_transform = np.diag([factor, factor, factor, 1.0])
@@ -161,6 +163,7 @@ if __name__ == "__main__":
     parser.add_argument('-o', "--output", type=str, default="output.txt", help="save path.")
     parser.add_argument('-i', "--init", type=str, default=None, help="initial guess.")
     parser.add_argument('-v', "--verbose", action="store_true", help="add print messages.")
+    parser.add_argument('-c', "--config", type=str, default="settings.json", help="config path.")
     args = parser.parse_args()
 
     point_time = time.time()
@@ -169,6 +172,7 @@ if __name__ == "__main__":
         transformation = np.loadtxt(args.init)
     tool = ManualRegistrationTool(source=open3d.io.read_point_cloud(args.source),
                                   target=open3d.io.read_point_cloud(args.target),
-                                  init=transformation)
+                                  init=transformation,
+                                  config_path=args.config)
     np.savetxt(args.output, tool.transformation)
     duration = time.time() - point_time
